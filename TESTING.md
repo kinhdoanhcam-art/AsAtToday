@@ -59,7 +59,7 @@ Only what needs a real wallet, a real signature or a human eye. Results and hash
 - Intelligent Contract: deploy, then 12 rows / 14 transactions with two wallets. The three must-verify checks
   (P4/U4 labels, P1/U1 labels, the two methods swapping places) are rows of that table. All passed.
 - Project: the same frozen source deployed again at its own address, then 4 transactions through the app and
-  3 screenshots.
+  3 screenshots. All passed.
 
 A call the app already knows will revert is **not** sent — the button is disabled with the contract's sentence —
 so its proof in the Project run is a screenshot, not a hash.

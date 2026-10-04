@@ -6,4 +6,4 @@
 - Intelligent Contract run on StudioNet: 12 rows, 14 transactions, all as expected.
 - AsAtToday app: ledger (load any id without a wallet), record, statement view with all four remedy buttons, side-by-side view, live calldata meter,
   receipt rule and postcondition checks.
-- Project deployment of the same frozen source at its own address.
+- Project deployment of the same frozen source at its own address; 4 transactions through the app and 3 screenshots, all as expected.

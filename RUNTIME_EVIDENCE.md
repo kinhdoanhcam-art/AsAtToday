@@ -10,12 +10,27 @@ Project contract: [`0x60c9eE92D411cAdC3C0D8b5d2CBB0dB3C41e9ecd`](https://explore
 the same frozen source deployed again at its own address (not the Intelligent Contract address).
 Author wallet `0x3065E31B1D993d7C0D59E6786844cBa56780B2d3` · other-side wallet `0x5a52d040581A76e2C032542855D31480f2ea7097`.
 
-| # | Wallet | Action in the app | Expected | Tx hash | Status |
-|---|---|---|---|---|---|
-| 1 | author | Record P1 (`The equipment is fully certified.`) | `PRESENT_FACT`, ASSERTION, OPEN | — | NOT RUN |
-| 6 | author | Record U1 (`The equipment will be kept fully certified.`) | `FUTURE_COMMITMENT`, UNDERTAKING, RUNNING | — | NOT RUN |
-| 8 | other | Report failure on U1 | failure_count 1, RUNNING | — | NOT RUN |
-| 3 | other | Challenge P1 | CHALLENGED | — | NOT RUN |
+Project deploy tx: `0x8e0f4b96e966d722395ba4eb9c2c0d1ca714958b4ae099c83e8d901efd8da788` (FINALIZED · SUCCESS). Run date 2026-10-04, through
+https://as-at-today.vercel.app with MetaMask. Every success below was reported by the app only after the leader receipt said SUCCESS
+and the reloaded accepted state showed the change.
+
+| # | Wallet | Action in the app | Expected | Tx hash | Result | Status |
+|---|---|---|---|---|---|---|
+| 1 | author | Record P1 (`The equipment is fully certified.`) | `PRESENT_FACT`, ASSERTION, OPEN | `0xefaf6d6d4e44d90a8d99df23ac62a91e90d71095de48153763666f3ae6f9c6eb` | SUCCESS; card: *Asserted as at today*, OPEN, *One move left: challenge or accept* | PASS |
+| 6 | author | Record U1 (`The equipment will be kept fully certified.`) | `FUTURE_COMMITMENT`, UNDERTAKING, RUNNING | `0xfed5e6999260a010f0ccfdaf7e0a1f6ef49de37609ac1b5168447d604b447566` | SUCCESS; card: *Promised for later*, RUNNING, *Failure reports: 0 of 30* | PASS |
+| 8 | other | Report failure on U1, note `Certificate lapsed` | failure_count 1, still RUNNING | `0xdf1ed4b4da9e391f2c63265d68960b60f10c297cc125be7f98f0f887400d3b13` | SUCCESS; *Failure reports: 1 of 30 · no one can close this*, remaining 29 | PASS |
+| 3 | other | Challenge P1, note `Certificate lapsed in May` | CHALLENGED, remaining 0 | `0xc21d403b20464f367481b473e2cb6f22e0ec3e33a4affce685b04a411fd80791` | FINALIZED · SUCCESS; chip CHALLENGED, challenge cell filled | PASS |
+
+Statement ids (author `0x3065…b2d3`): P1 `927f97b14079f2c0943e014405afda0110893c3d5edf86b847291d8b7ac39afe` ·
+U1 `16fce5e94beffad6880dfede631502b025540e08bbc8d682c1fe0f1244bb80be`.
+
+### Screenshots (other-side wallet connected)
+
+| # | File | What it shows |
+|---|---|---|
+| 1 + 2 | `docs/evidence/1-side-by-side.png` | P1 open: *Report failure* disabled with *"This is asserted as at today; challenge it instead of reporting a failure"*, empty Challenge / Author's answer cells, *One move left*. U1: *Challenge* disabled with *"Nothing is asserted as at today; report a failure to perform instead"*, *Accept* disabled with *"There is nothing to accept as at today; a forward promise stays open"*, one report, *Failure reports: 1 of 30*, *This record has no closing state* |
+| — | `docs/evidence/2-promise-one-report.png` | U1 alone after the report, with the app's success line and tx hash |
+| 3 | `docs/evidence/3-challenged.png` | P1 after the challenge: chip CHALLENGED, *Accept* disabled with *"This statement has already been challenged"* — a different sentence from U1's |
 
 Calls the app already knows will revert are not sent: the button is disabled with the contract's sentence, and
 the proof is a screenshot, not a hash.

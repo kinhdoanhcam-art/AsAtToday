@@ -33,6 +33,9 @@ certificate or ledger and calls no web source. It classifies the sentence and de
 
 ## What the app shows
 
+![Side by side: one move on the assertion, thirty reports on the promise](docs/evidence/1-side-by-side.png)
+
+
 - **Every statement shows all four buttons** — Challenge, Report failure, Accept, Answer. A button that does not
   belong to this kind of record, this wallet or this state is disabled with the contract's own revert sentence,
   e.g. *"This is asserted as at today; challenge it instead of reporting a failure"*.
@@ -65,6 +68,8 @@ belongs to the other side's wallet. Do not reuse statements from the evidence �
 4. Challenge the assertion: the chip turns CHALLENGED and *Accept* is disabled with *"This statement has already
    been challenged"* — a different sentence from the promise's *"There is nothing to accept as at today; a forward
    promise stays open"*.
+
+![After the challenge: Accept disabled with a different sentence](docs/evidence/3-challenged.png)
 
 ## Methods
 
