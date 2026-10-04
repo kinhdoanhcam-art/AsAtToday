@@ -1,0 +1,59 @@
+{
+  "author": "0x923a09d0d6e5c242e36c3c1d2071835917cc0bdf",
+  "statements": [
+    {
+      "text": "The equipment is fully certified.",
+      "normalized": "The equipment is fully certified.",
+      "py_len": 33,
+      "statement_id": "c024de14e0eb212eeb49b723f40fe189f80bca9c97b4cfdc535f20bdcd619f68"
+    },
+    {
+      "text": "The equipment will be kept fully certified.",
+      "normalized": "The equipment will be kept fully certified.",
+      "py_len": 43,
+      "statement_id": "aaa9d3eadd12fad7b27594ac0890319d339aefe3cd1b7b606e7f69cd8ef591ec"
+    },
+    {
+      "text": "Anyone who checks the register today will see that we hold the licences.",
+      "normalized": "Anyone who checks the register today will see that we hold the licences.",
+      "py_len": 72,
+      "statement_id": "4a4efe5642dbaef7ca73c951c887a48a3e1ecc10b33b7ba38736e0f23754043e"
+    },
+    {
+      "text": "We will obtain any further licences the work requires.",
+      "normalized": "We will obtain any further licences the work requires.",
+      "py_len": 54,
+      "statement_id": "8951f8329c732df559cc7f5d760e42ec4cc05187402f1fa1be1cae35381adc39"
+    },
+    {
+      "text": "  The figures given\tto you\nare drawn from the current ledger.  ",
+      "normalized": "The figures given to you are drawn from the current ledger.",
+      "py_len": 59,
+      "statement_id": "38fd8741852a27a0b1bb3daa0717bc37847bc5fb5d73273045f31f734be0d63f"
+    },
+    {
+      "text": "\u001cThere is no litigation pending against us.\u001f",
+      "normalized": "There is no litigation pending against us.",
+      "py_len": 42,
+      "statement_id": "70113f5dd1ba5368d5db9873e3aa76f371f2fa776b4b6d0c75f20cbc389adae0"
+    },
+    {
+      "text": "Ouraccounts\u001dare to be\u001eaudited every year from now on.",
+      "normalized": "Our accounts are to be audited every year from now on.",
+      "py_len": 54,
+      "statement_id": "a50a6983a0dbdd8a80ac07dc56bc03bedf2ccc939bfd9188cd7a33579ac05291"
+    },
+    {
+      "text": "﻿The register is current.",
+      "normalized": "﻿The register is current.",
+      "py_len": 25,
+      "statement_id": "169fdfec443abdfba423b5407740ed68382431cc1cab56dc23b44180c2b1e0ca"
+    },
+    {
+      "text": "Équipement certifié — each　item on its own. 📄",
+      "normalized": "Équipement certifié — each item on its own. 📄",
+      "py_len": 45,
+      "statement_id": "f1b567b5a033897a6782dff6a49d5783b3b94824933b687c3eb902a759495d50"
+    }
+  ]
+}
