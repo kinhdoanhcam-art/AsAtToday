@@ -30,7 +30,7 @@ import type { FailureReport, Statement, TxStatus } from "./lib/types";
 import { acceptVerified, answerVerified, challengeVerified, recordVerified, reportVerified } from "./lib/verify";
 
 type Loaded = { s: Statement; reports: FailureReport[] };
-type Tab = "record" | "statement" | "compare";
+type Tab = "ledger" | "record" | "compare";
 type Action = "challenge" | "report" | "accept" | "answer";
 
 const RECENT_KEY = "asattoday.recent";
@@ -138,11 +138,11 @@ function StatementCard({ data, me, busy, onAction }: CardProps) {
 
       {s.kind === "ASSERTION" ? (
         <div className="cells">
-          <div className={s.challenge_note ? "cell filled" : "cell empty"}>
+          <div className={s.challenge_note ? "cell filled" : "cell blank"}>
             <h4>Challenge</h4>
             <p>{s.challenge_note ? `“${s.challenge_note}”` : "— empty —"}</p>
           </div>
-          <div className={s.answer_note ? "cell filled" : "cell empty"}>
+          <div className={s.answer_note ? "cell filled" : "cell blank"}>
             <h4>Author's answer</h4>
             <p>{s.answer_note ? `“${s.answer_note}”` : "— empty —"}</p>
           </div>
@@ -194,7 +194,7 @@ function StatementCard({ data, me, busy, onAction }: CardProps) {
 
 export default function App() {
   const [me, setMe] = useState("");
-  const [tab, setTab] = useState<Tab>("record");
+  const [tab, setTab] = useState<Tab>("ledger");
   const [tx, setTx] = useState<TxStatus>({ phase: "idle", message: "" });
   const [pendingHash, setPendingHash] = useState("");
   const [recent, setRecent] = useState<string[]>(readRecent);
@@ -352,7 +352,7 @@ export default function App() {
     remember(sub.statementId);
     setIdInput(sub.statementId);
     setText("");
-    setTab("statement");
+    setTab("ledger");
     setCurrent(await load(sub.statementId));
   }
 
@@ -377,105 +377,136 @@ export default function App() {
     await refresh(id);
   }
 
+  const TABS: [Tab, string][] = [["ledger", "Ledger"], ["record", "Record"], ["compare", "Side by side"]];
+
   return (
-    <div className="shell">
-      <header className="bar">
-        <div className="brand">
-          <img src="/logo-192.png" alt="" width={40} height={40} />
-          <div>
-            <h1>AsAtToday</h1>
-            <p>A fact as at today, or a promise for later? The answer decides how many times the other side may complain — and who can close the door.</p>
+    <div className="app">
+      <header className="topbar">
+        <div className="topbar-in">
+          <div className="brand">
+            <img src="/logo-192.png" alt="" width={34} height={34} />
+            <div>
+              <strong>AsAtToday</strong>
+              <span>fact or promise</span>
+            </div>
           </div>
-        </div>
-        <div className="who">
-          {me ? <span className="chip">{short(me)}</span> : <button className="primary" onClick={connect}>Connect MetaMask</button>}
-          <span className="chip dim">StudioNet 61999</span>
+          <nav className="nav">
+            {TABS.map(([t, name]) => (
+              <button key={t} className={tab === t ? "nav-tab on" : "nav-tab"} onClick={() => setTab(t)}>{name}</button>
+            ))}
+          </nav>
+          {me ? <span className="wallet">{short(me)}</span> : <button className="wallet" onClick={connect}>Connect wallet</button>}
         </div>
       </header>
+      <div className="subbar">
+        <div className="subbar-in">
+          <span className="net"><i /> StudioNet / 61999</span>
+          {CONTRACT_ADDRESS ? (
+            <a href={`${EXPLORER_BASE}/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">Project contract {short(CONTRACT_ADDRESS)} ↗</a>
+          ) : <span>No contract address configured</span>}
+        </div>
+      </div>
 
-      {!CONTRACT_ADDRESS && <div className="warn">No contract address configured.</div>}
-
-      <nav className="tabs">
-        {(["record", "statement", "compare"] as Tab[]).map((t) => (
-          <button key={t} className={tab === t ? "tab on" : "tab"} onClick={() => setTab(t)}>
-            {t === "record" ? "Record a statement" : t === "statement" ? "Statement" : "Side by side"}
-          </button>
-        ))}
-      </nav>
-
-      {tab === "record" && (
-        <section className="panel">
-          <h2>Record a statement</h2>
-          <p className="muted">
-            You are the author. The validators read your sentence once: does it assert how things stand now, or bind you
-            to do something later? An assertion gives the other side one move — challenge or accept — and then it closes.
-            A promise gives them up to 30 failure reports, and nobody can close it. Nothing is verified and no money is held.
-          </p>
-          <div className="grid2">
-            <label>Other side's wallet<input value={other} onChange={(e) => setOther(e.target.value)} placeholder="0x…" spellCheck={false} /></label>
-            <label>Other side's label<input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="how the sentence names them" />
-              <small>{pyLen(pyStrip(label))}/{MAX_LABEL_LENGTH}</small></label>
-          </div>
-          <label>Statement<textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} />
-            <small>{pyLen(pyStrip(text))}/{MAX_TEXT_LENGTH} · <Meter bytes={recordBytes} /></small></label>
-          {localId && <p className="meta">Statement id if recorded: <code>{localId}</code></p>}
-          <div className="actions">
-            <button className="primary" disabled={busy || recordReason !== null || recordBytes > CALLDATA_LIMIT} onClick={onRecord}>Record statement</button>
-            {recordReason && <span className="why">{recordReason}</span>}
-            {!recordReason && recordBytes > CALLDATA_LIMIT && <span className="why">Calldata over {CALLDATA_LIMIT} bytes; shorten the text.</span>}
-          </div>
-          <p className="muted small">The statement and label may not contain the tokens PRESENT_FACT or FUTURE_COMMITMENT; they are the answer tokens.</p>
-        </section>
-      )}
-
-      {tab === "statement" && (
-        <section className="panel">
-          <h2>Statement</h2>
-          <div className="row">
-            <input value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="statement id (64 hex)" spellCheck={false} />
-            <button onClick={() => loadById(idInput)}>Load</button>
-          </div>
-          {recent.length > 0 && (
-            <div className="recent">
-              {recent.map((r) => <button key={r} className="link" onClick={() => loadById(r)}>{short(r, 8, 6)}</button>)}
-            </div>
-          )}
-          {current && <StatementCard data={current} me={me} busy={busy} onAction={onAction} />}
-        </section>
-      )}
-
-      {tab === "compare" && (
-        <section className="panel">
-          <h2>Side by side</h2>
-          <p className="muted">Two statements from the same two wallets: one asserted as at today, one promised for later.</p>
-          <div className="grid2">
-            <input value={leftId} onChange={(e) => setLeftId(e.target.value)} placeholder="first statement id" spellCheck={false} />
-            <input value={rightId} onChange={(e) => setRightId(e.target.value)} placeholder="second statement id" spellCheck={false} />
-          </div>
-          <div className="actions"><button onClick={loadPair}>Compare</button></div>
-          <div className="pair">
-            {pair.map((p, i) => (
-              <div key={i}>
-                {p ? <StatementCard data={p} me={me} busy={busy} onAction={onAction} /> : <p className="muted pane-empty">No statement loaded.</p>}
+      <main className="shell">
+        {tab === "ledger" && (
+          <>
+            <section className="hero">
+              <div className="hero-copy">
+                <p className="eyebrow">Read-only before wallet</p>
+                <h1>One sentence.<br /><em>One move, or thirty.</em></h1>
+                <p className="lead">
+                  Load a statement to see whether the validators read it as a fact as at today or a promise for later —
+                  and what the other side can still do about it.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+              <div className="loadbox">
+                <label>Statement ID
+                  <div className="row">
+                    <input value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="64-character id" spellCheck={false} />
+                    <button className="dark" onClick={() => loadById(idInput)}>Load</button>
+                  </div>
+                </label>
+                <small>No wallet is required to inspect accepted state.</small>
+                {recent.length > 0 && (
+                  <div className="recent">
+                    {recent.map((r) => <button key={r} className="link" onClick={() => loadById(r)}>{short(r, 8, 6)}</button>)}
+                  </div>
+                )}
+              </div>
+            </section>
+            <hr className="rule" />
+            {current ? (
+              <StatementCard data={current} me={me} busy={busy} onAction={onAction} />
+            ) : (
+              <div className="empty">
+                <div className="empty-mark" aria-hidden="true">◎ ▮▮▮▸</div>
+                <h3>No statement loaded</h3>
+                <p>Paste an existing ID, or record a new statement from the Record tab.</p>
+                <button className="link-strong" onClick={() => setTab("record")}>Record a statement →</button>
+              </div>
+            )}
+          </>
+        )}
 
-      {tx.phase !== "idle" && (
-        <section className={`status status-${tx.phase}`}>
-          <strong>{tx.phase === "delayed" ? "Submitted — confirmation delayed" : tx.phase}</strong>
-          <span>{tx.message}</span>
-          {tx.hash && <a href={`${EXPLORER_BASE}/tx/${tx.hash}`} target="_blank" rel="noreferrer"><code>{tx.hash}</code></a>}
-          {tx.phase === "delayed" && <button onClick={checkAgain}>Check again</button>}
-        </section>
-      )}
+        {tab === "record" && (
+          <section className="panel">
+            <p className="eyebrow">Author</p>
+            <h2>Record a statement</h2>
+            <p className="muted">
+              The validators read your sentence once: does it assert how things stand now, or bind you to do something
+              later? An assertion gives the other side one move — challenge or accept — and then it closes. A promise gives
+              them up to 30 failure reports, and nobody can close it. Nothing is verified and no money is held.
+            </p>
+            <div className="grid2">
+              <label>Other side's wallet<input value={other} onChange={(e) => setOther(e.target.value)} placeholder="0x…" spellCheck={false} /></label>
+              <label>Other side's label<input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="how the sentence names them" />
+                <small>{pyLen(pyStrip(label))}/{MAX_LABEL_LENGTH}</small></label>
+            </div>
+            <label>Statement<textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} />
+              <small>{pyLen(pyStrip(text))}/{MAX_TEXT_LENGTH} · <Meter bytes={recordBytes} /></small></label>
+            {localId && <p className="meta">Statement id if recorded: <code>{localId}</code></p>}
+            <div className="actions">
+              <button className="dark" disabled={busy || recordReason !== null || recordBytes > CALLDATA_LIMIT} onClick={onRecord}>Record statement</button>
+              {recordReason && <span className="why">{recordReason}</span>}
+              {!recordReason && recordBytes > CALLDATA_LIMIT && <span className="why">Calldata over {CALLDATA_LIMIT} bytes; shorten the text.</span>}
+            </div>
+            <p className="muted small">The statement and label may not contain the tokens PRESENT_FACT or FUTURE_COMMITMENT; they are the answer tokens.</p>
+          </section>
+        )}
 
-      <footer className="foot">
-        Contract {CONTRACT_ADDRESS ? <a href={`${EXPLORER_BASE}/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer"><code>{CONTRACT_ADDRESS}</code></a> : "not configured"} ·
-        GenLayer StudioNet · holds no money and does not check whether a statement is true.
-      </footer>
+        {tab === "compare" && (
+          <section className="panel">
+            <p className="eyebrow">Same two wallets</p>
+            <h2>Side by side</h2>
+            <p className="muted">One statement asserted as at today, one promised for later — the remedy flips between them.</p>
+            <div className="grid2">
+              <input value={leftId} onChange={(e) => setLeftId(e.target.value)} placeholder="first statement id" spellCheck={false} />
+              <input value={rightId} onChange={(e) => setRightId(e.target.value)} placeholder="second statement id" spellCheck={false} />
+            </div>
+            <div className="actions"><button className="dark" onClick={loadPair}>Compare</button></div>
+            <div className="pair">
+              {pair.map((p, i) => (
+                <div key={i}>
+                  {p ? <StatementCard data={p} me={me} busy={busy} onAction={onAction} /> : <p className="muted pane-empty">No statement loaded.</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {tx.phase !== "idle" && (
+          <section className={`status status-${tx.phase}`}>
+            <strong>{tx.phase === "delayed" ? "Submitted — confirmation delayed" : tx.phase}</strong>
+            <span>{tx.message}</span>
+            {tx.hash && <a href={`${EXPLORER_BASE}/tx/${tx.hash}`} target="_blank" rel="noreferrer"><code>{tx.hash}</code></a>}
+            {tx.phase === "delayed" && <button onClick={checkAgain}>Check again</button>}
+          </section>
+        )}
+
+        <footer className="foot">
+          GenLayer StudioNet · the contract holds no money and does not check whether a statement is true.
+        </footer>
+      </main>
     </div>
   );
 }

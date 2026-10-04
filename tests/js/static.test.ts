@@ -69,5 +69,5 @@ test("the concept sentences are rendered from the shared rules module", () => {
 
 test("no seed or demo data in the app", () => {
   const app = read("src/App.tsx");
-  assert.ok(!/equipment|litigation|licences|ledger|audited|0x[0-9a-f]{40}/i.test(app));
+  assert.ok(!/equipment|litigation|licences|audited|certified|0x[0-9a-f]{40}/i.test(app));
 });

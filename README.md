@@ -41,7 +41,7 @@ certificate or ledger and calls no web source. It classifies the sentence and de
 - An assertion shows two cells, **Challenge** and **Author's answer**, and a state chip (OPEN / CHALLENGED /
   ACCEPTED). A promise shows its list of failure reports with the author's answers and the line *This record has
   no closing state*.
-- **Side by side**: two statements from the same two wallets, one tense apart — one has a single move and then
+- **Ledger** loads any statement id without a wallet. **Side by side**: two statements from the same two wallets, one tense apart — one has a single move and then
   closes, the other takes thirty reports and never closes.
 - The id of a new statement is computed locally (Keccak-256, Python whitespace rules) and shown before sending;
   the app checks the accepted state first and never sends a duplicate.
@@ -53,11 +53,11 @@ certificate or ledger and calls no web source. It classifies the sentence and de
 You need **two wallets of your own**, both on GenLayer StudioNet: an author and an other side. Every remedy
 belongs to the other side's wallet. Do not reuse statements from the evidence — record your own.
 
-1. Open the live app and connect MetaMask as the **author**. On *Record a statement*, enter your other wallet,
+1. Open the live app and connect MetaMask as the **author**. On the *Record* tab, enter your other wallet,
    label `the other side`, and `The equipment is fully certified.` Record it; the app opens it as *Asserted as at
    today* with *One move left: challenge or accept*. Record a second statement:
    `The equipment will be kept fully certified.` It opens as *Promised for later* with *Failure reports: 0 of 30*.
-2. Switch MetaMask to the **other side**. On the promise, type a note and click *Report failure*: the list gains a
+2. Switch MetaMask to the **other side**. On the *Ledger* tab, load the promise, type a note and click *Report failure*: the list gains a
    row and the line reads *1 of 30*. *Challenge* and *Accept* stay disabled with their sentences.
 3. Open *Side by side* with both ids: on the assertion, *Report failure* is disabled with *"This is asserted as at
    today; challenge it instead of reporting a failure"*; on the promise, *Challenge* is disabled with *"Nothing is
