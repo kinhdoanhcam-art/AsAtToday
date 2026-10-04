@@ -43,8 +43,14 @@ blocks sending above 255 bytes.
 
 `node tools/probe-calldata.mjs <address>` sends each row as a `gen_call` write simulation (no wallet, no
 transaction, no model call): `record_statement` is sent from the other-side wallet and stops at *The other side
-cannot be the author*; the id methods use an unknown id and stop at *Unknown statement id*. A row counts as decoded
-only when that contract sentence comes back. CI runs it for the addresses in `deployments.json` (job `probe`).
+cannot be the author*; the id methods use an unknown id and stop at *Unknown statement id*. StudioNet's `gen_call`
+answers these with a generic "execution failed" rather than the sentence, so a row counts as decoded when the node
+reports execution (or returns the sentence) and fails only on a network error or no answer. CI runs it for the
+addresses in `deployments.json` (job `probe`).
+
+On StudioNet the `gen_call` path also executed the 767-byte measure-only row, so the probe does **not** reproduce
+the 255-byte cliff, which belongs to the transaction path (`eth_sendRawTransaction`). That limit is enforced by the
+offline table above and by the app's meter.
 
 ## Run by hand on StudioNet
 

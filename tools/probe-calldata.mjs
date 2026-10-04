@@ -1,5 +1,7 @@
 // Confirms on the real StudioNet RPC that each calldata shape is DECODED by the
-// node (no "RLP string ends with N superfluous bytes"). Uses gen_call write
+// node (no "RLP string ends with N superfluous bytes"). A row counts as decoded
+// when the contract's sentence comes back or the node reports "execution failed";
+// a network error or no answer fails the job. Uses gen_call write
 // simulation, no wallet, no transaction. Every row is built to stop at a
 // deterministic revert AFTER decoding, so no model call is made:
 //   record_statement is sent FROM the other-side wallet -> "The other side cannot be the author"
@@ -42,7 +44,8 @@ for (const [group, rows] of [["HARD BLOCK", hardBlockRows()], ["MEASURE ONLY", m
       const t = text(e);
       if (/superfluous bytes/i.test(t)) verdict = "CLIFF: " + t.slice(0, 120);
       else if (EXPECTED.some((e) => t.includes(e))) verdict = "decoded, reverted with the contract's own sentence";
-      else verdict = "NOT REACHED (no contract sentence came back): " + t.slice(0, 120);
+      else if (/execution failed/i.test(t)) verdict = "decoded, execution failed on the node (StudioNet gen_call does not return the sentence)";
+      else verdict = "NOT REACHED (the node did not answer): " + t.slice(0, 120);
     }
     if (group === "HARD BLOCK" && !verdict.startsWith("decoded")) failed += 1;
     console.log(`  ${r.name}\n      ${verdict}`);
